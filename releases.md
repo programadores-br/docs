@@ -1,47 +1,47 @@
-# Release Notes
+# Notas de Lançamento
 
-- [Versioning Scheme](#versioning-scheme)
-- [Support Policy](#support-policy)
+- [Padrão de Versionamento](#versioning-scheme)
+- [Política de Suporte](#support-policy)
 - [Laravel 6](#laravel-6)
 
 <a name="versioning-scheme"></a>
-## Versioning Scheme
+## Padrão de Versionamento
 
-Laravel and its other first-party packages follow [Semantic Versioning](https://semver.org). Major framework releases are released every six months (February and August), while minor and patch releases may be released as often as every week. Minor and patch releases should **never** contain breaking changes.
+Laravel e seus outros pacotes primários seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/). Lançamentos maiores são feitos a cada seis meses (Fevereiro e Agosto), enquanto versões menores e corretivas são lançadas, geralmente, a cada semana. Versões menores e corretivas **nunca** devem conter mudanças bruscas.
 
-When referencing the Laravel framework or its components from your application or package, you should always use a version constraint such as `^6.0`, since major releases of Laravel do include breaking changes. However, we strive to always ensure you may update to a new major release in one day or less.
+Quando se referenciar ao framework Laravel ou seus componentes a partir da sua aplicação ou pacote, você devem sempre usar uma restrição de versão, tal como `^6.0`, já que os lançamentos principais do Laravel incluem mudanças bruscas. Porém, nós nos esforçamos para sempre garantir que você possa atualizar para uma versão principal em um dia ou menos
 
 <a name="support-policy"></a>
-## Support Policy
+## Política de Suporte
 
-For LTS releases, such as Laravel 6, bug fixes are provided for 2 years and security fixes are provided for 3 years. These releases provide the longest window of support and maintenance. For general releases, bug fixes are provided for 6 months and security fixes are provided for 1 year. For all additional libraries, including Lumen, only the latest release receives bug fixes. In addition, please review the database versions [supported by Laravel](/docs/{{version}}/database#introduction).
+Para versões LTS (Longo Tempo de Suporte - Long-Term Support, em inglês), tal como o Laravel 6, correções de bugs são fornecidos por 2 anos e correções de segurança são fornecidas por 3 anos. Estes lançamentos provêm uma maior janela de suporte e manutenção. Para lançamentos em geral, correções de bugs são fornecidos por 6 meses e correções de segurança são fornecidos por 1 ano. Para todas as bibliotecas adicionais, incluindo o Lumen, somnete a versão mais recente recebem correções de segurança. Para outros casos, consulte as versões de banco de dados [mantido pelo Laravel](/docs/{{version}}/database#introduction).
 
-| Version | Release | Bug Fixes Until | Security Fixes Until |
+| Versão | Data de lançamento | Correções de Bugs até | Correções de Segurança até |
 | --- | --- | --- | --- |
-| 5.5 (LTS) | August 30th, 2017 | August 30th, 2019 | August 30th, 2020 |
-| 5.6 | February 7th, 2018 | August 7th, 2018 | February 7th, 2019 |
-| 5.7 | September 4th, 2018 | March 4th, 2019 | September 4th, 2019 |
-| 5.8 | February 26th, 2019 | August 26th, 2019 | February 26th, 2020 |
-| 6 (LTS) | September 3rd, 2019 | September 3rd, 2021 | September 3rd, 2022 |
+| 5.5 (LTS) | 30 de agosto de 2017 | 30 de agosto de 2019 | 30 de agosto de 2020 |
+| 5.6 | 7 de fevereiro de 2018 | 7 de agosto de 2018 | 7 de fevereiro de 2019 |
+| 5.7 | 4 de setembro de 2018 | 4 de março de 2019 | 4 de setembro de 2019 |
+| 5.8 | 26 de fevereiro de 2019 | 26 de agosto de 2019 | 26 de fevereiro de 2020 |
+| 6 (LTS) | 3 de setembro de 2019 | 3 de setembro de 2021 | 3 de setembro de 2022 |
 
 <a name="laravel-6"></a>
 ## Laravel 6
 
-Laravel 6 (LTS) continues the improvements made in Laravel 5.8 by introducing semantic versioning, compatibility with [Laravel Vapor](https://vapor.laravel.com), improved authorization responses, job middleware, lazy collections, sub-query improvements, the extraction of frontend scaffolding to the `laravel/ui` Composer package, and a variety of other bug fixes and usability improvements.
+Laravel 6 (LTS) continua as melhorias feitas no Laravel 5.8, introduzindo versionamento semântico, compatibilidade com o [Laravel Vapor](https://vapor.laravel.com), melhorias em respostas de autorizações, middlewares de jobs, coleções de lazy-loading, melhorias de sub-query, retirada dos códigos de frontend para o pacote `laravel/ui` do Composer, e uma variedade de outras correções de segurança e melhorias de usabilidade.
 
-### Semantic Versioning
+### Versionamento Semântico
 
-The Laravel framework (`laravel/framework`) package now follows the [semantic versioning](https://semver.org/) standard. This makes the framework consistent with the other first-party Laravel packages which already followed this versioning standard. The Laravel release cycle will remain unchanged.
+O pacote do framework Laravel (`laravel/framework`) agora segue o padrão de [versionamento semântico](https://semver.org/lang/pt-BR/). Isto torna o framework consistente com os outros pacotes primários Laravel que já seguem este padrão de versionamento. O ciclo de lançamento do Laravel permanece inalterado.
 
-### Laravel Vapor Compatibility
+### Compatibilidade com Laravel Vapor
 
-_Laravel Vapor was built by [Taylor Otwell](https://github.com/taylorotwell)_.
+_Laravel Vapor foi feito por [Taylor Otwell](https://github.com/taylorotwell)_.
 
-Laravel 6 provides compatibility with [Laravel Vapor](https://vapor.laravel.com), an auto-scaling serverless deployment platform for Laravel. Vapor abstracts the complexity of managing Laravel applications on AWS Lambda, as well as interfacing those applications with SQS queues, databases, Redis clusters, networks, CloudFront CDN, and more.
+Laravel 6 é compatível com [Laravel Vapor](https://vapor.laravel.com), uma plataforma de deploy com auto-scale serverless para o Laravel. Vapor abstrai a complexidade de gerenciar aplicações Laravel no AWS Lambda, bem como interface das aplicações com filas SQS, bancos de dados, clusters de Redis, redes, CDN CloudFront, e outros.
 
-### Improved Exceptions Via Ignition
+### Exceções melhoradas via Ignition
 
-Laravel 6 ships with [Ignition](https://github.com/facade/ignition), a new open source exception detail page created by Freek Van der Herten and Marcel Pociot. Ignition offers many benefits over previous releases, such as improved Blade error file and line number handling, runnable solutions for common problems, code editing, exception sharing, and an improved UX.
+Laravel 6 vem com o [Ignition](https://github.com/facade/ignition), uma nova página com detalhes de exceções de código aberto, criado por Freek Van der Herten e Marcel Pociot. Ignition oderece muitos benefícios em relação às versões anteriores, como uma melhoria no gerenciamento dos erros em arquivos do Blade e número da linha, soluções executáveis para problemas comuns, edição de código, compartilhamento das exceções e melhorias de UX.
 
 ### Improved Authorization Responses
 
