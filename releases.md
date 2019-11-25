@@ -151,7 +151,7 @@ Depois de criar o middleware, eles podem ser anexados a um job, retornando de um
 
 _Coleções Lazy foram implementadas por [Joseph Silber](https://github.com/JosephSilber)_.
 
-Muitos desenvolvedores já aproveitam todo o pode dos  [métodos Collection](https://laravel.com/docs/collections) do Laravel. Para complementar a já poderosa classe `Collection`, o Laravel 6 apresenta um `LazyCollection`, que é To supplement the already powerful  class, Laravel 6 introduces a `LazyCollection`, que se aproveita dos [generators](https://www.php.net/manual/en/language.generators.overview.php) do PHP, para permitir que você trabalhe com conjuntos de dados muito grandes, enquanto mantém o uso de memória baixo.
+Muitos desenvolvedores já aproveitam todo o poder dos  [métodos Collection](https://laravel.com/docs/collections) do Laravel. Para complementar a já poderosa classe `Collection`, o Laravel 6 apresenta um `LazyCollection`, que é To supplement the already powerful  class, Laravel 6 introduces a `LazyCollection`, que se aproveita dos [generators](https://www.php.net/manual/en/language.generators.overview.php) do PHP, para permitir que você trabalhe com conjuntos de dados muito grandes, enquanto mantém o uso de memória baixo.
 
 Por exemplo, imagine que sua aplicação necessita processar um arquivo de log com vários gigabytes, enquanto tira vantagem dos métodos Collection do Laravel para analisar os logs. Ao invés de ler o arquivo inteiro dentro da memória de uma única vez, as Collections Lazy podem ser usadas para manter somente uma pequena parte do arquivo na memória por vez:
 
