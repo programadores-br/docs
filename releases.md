@@ -27,7 +27,7 @@ Para versões LTS (Longo Tempo de Suporte - Long-Term Support, em inglês), tal 
 <a name="laravel-6"></a>
 ## Laravel 6
 
-Laravel 6 (LTS) continua as melhorias feitas no Laravel 5.8, introduzindo versionamento semântico, compatibilidade com o [Laravel Vapor](https://vapor.laravel.com), melhorias em respostas de autorizações, middlewares de jobs, coleções de lazy-loading, melhorias de sub-query, retirada dos códigos de frontend para o pacote `laravel/ui` do Composer, e uma variedade de outras correções de segurança e melhorias de usabilidade.
+Laravel 6 (LTS) continua as melhorias feitas no Laravel 5.8, introduzindo versionamento semântico, compatibilidade com o [Laravel Vapor](https://vapor.laravel.com), melhorias em respostas de autorizações, middleware de jobs, coleções de Lazy, melhorias de sub-query, retirada dos códigos prontos de frontend para o pacote `laravel/ui` do Composer, e uma variedade de outras correções de segurança e melhorias de usabilidade.
 
 ### Versionamento Semântico
 
@@ -43,14 +43,14 @@ Laravel 6 é compatível com [Laravel Vapor](https://vapor.laravel.com), uma pla
 
 Laravel 6 vem com o [Ignition](https://github.com/facade/ignition), uma nova página com detalhes de exceções de código aberto, criado por Freek Van der Herten e Marcel Pociot. Ignition oderece muitos benefícios em relação às versões anteriores, como uma melhoria no gerenciamento dos erros em arquivos do Blade e número da linha, soluções executáveis para problemas comuns, edição de código, compartilhamento das exceções e melhorias de UX.
 
-### Improved Authorization Responses
+### Melhorias em Respostas de Autorizações
 
-_Improved authorization responses were implemented by [Gary Green](https://github.com/garygreen)_.
+_Respostas de autorizações melhoradas foram implementadas por [Gary Green](https://github.com/garygreen)_.
 
-In previous releases of Laravel, it was difficult to retrieve and expose custom authorization messages to end users. This made it difficult to explain to end-users exactly why a particular request was denied. In Laravel 6, this is now much easier using authorization response messages and the new `Gate::inspect` method. For example, given the following policy method:
+Em versões anteriores do Laravel, era difícil recuperar e expor mensagens customizadas de autorização para os usuários finais. Isto tornava difícil explicar para o usuário o porquê exatamente uma requisição particular foi negada. No Laravel 6, agora é muito mais fácil de usar mensagens de resposta de autorização e o novo método `Gate::inspect`. Por exemplo, dada a seguinte política no método:
 
     /**
-     * Determine if the user can view the given flight.
+     * Determina se o usuário pode visualizar o voo fornecido.
      *
      * @param  \App\User  $user
      * @param  \App\Flight  $flight
@@ -58,48 +58,49 @@ In previous releases of Laravel, it was difficult to retrieve and expose custom 
      */
     public function view(User $user, Flight $flight)
     {
-        return $this->deny('Explanation of denial.');
+        return $this->deny('Explicação da negativa.');
     }
 
-The authorization policy's response and message may be easily retrieved using the `Gate::inspect` method:
+A resposta da política de autorização e a sua mensagem podem ser facilmente recuperada usando o método `Gate::inspect`:
 
     $response = Gate::inspect('view', $flight);
 
     if ($response->allowed()) {
-        // User is authorized to view the flight...
+        // Usuário está autorizado a visualizar o voo...
     }
 
     if ($response->denied()) {
         echo $response->message();
     }
 
-In addition, these custom messages will automatically be returned to your frontend when using helper methods such as `$this->authorize` or `Gate::authorize` from your routes or controllers.
+Adicionalmente, estas mensagens customizadas serão automaticamente retornadas para seu frontend ao utilizar os métodos auxiliares como `$this->authorize` ou `Gate::authorize` a partir de suas rotas ou controladores.
 
-### Job Middleware
+### Middleware de Jobs
 
-_Job middleware were implemented by [Taylor Otwell](https://github.com/taylorotwell)_.
+_Middleware de Jobs foram implementadas por [Taylor Otwell](https://github.com/taylorotwell)_.
 
-Job middleware allow you to wrap custom logic around the execution of queued jobs, reducing boilerplate in the jobs themselves. For example, in previous releases of Laravel, you may have wrapped the logic of a job's `handle` method within a rate-limited callback:
+O middleware de jobs permite que você possa esconder uma lógica customizada em torno da execução de filas de jobs, reduzindo o boilerplate dentro dos próprios jobs. Por exemplo, nas versões anteriores do Laravel, você poderia esconder a lógica do método `handle` de um job com uma função callback de rate-limited:
 
     /**
-     * Execute the job.
+     * Executa o job.
      *
      * @return void
      */
     public function handle()
     {
         Redis::throttle('key')->block(0)->allow(1)->every(5)->then(function () {
-            info('Lock obtained...');
+            info('Bloqueio obtido...');
 
-            // Handle job...
+            // Lida com o job...
         }, function () {
-            // Could not obtain lock...
+            //  Não pode obter o bloqueio...
 
             return $this->release(5);
         });
     }
 
-In Laravel 6, this logic may be extracted into a job middleware, allowing you to keep your job's `handle` method free of any rate limiting responsibilities:
+No Laravel 6, esta lógica pode ser extraída para dentro de middleware de job, permitindo que você matenha o método `handle` do seu job livre de qualquer responsabilidade de fazer rate limiting:
+
 
     <?php
 
@@ -110,7 +111,7 @@ In Laravel 6, this logic may be extracted into a job middleware, allowing you to
     class RateLimited
     {
         /**
-         * Process the queued job.
+         * Processa o job colocado na fila.
          *
          * @param  mixed  $job
          * @param  callable  $next
@@ -121,23 +122,23 @@ In Laravel 6, this logic may be extracted into a job middleware, allowing you to
             Redis::throttle('key')
                     ->block(0)->allow(1)->every(5)
                     ->then(function () use ($job, $next) {
-                        // Lock obtained...
+                        // Bloqueio obtido...
 
                         $next($job);
                     }, function () use ($job) {
-                        // Could not obtain lock...
+                        // Não pode obter o bloqueio...
 
                         $job->release(5);
                     });
         }
     }
 
-After creating middleware, they may be attached to a job by returning them from the job's `middleware` method:
+Depois de criar o middleware, eles podem ser anexados a um job, retornando de um método `middleware` do job:
 
     use App\Jobs\Middleware\RateLimited;
 
     /**
-     * Get the middleware the job should pass through.
+     * Pega o middleware pelo qual o job deve passar.
      *
      * @return array
      */
@@ -146,13 +147,13 @@ After creating middleware, they may be attached to a job by returning them from 
         return [new RateLimited];
     }
 
-### Lazy Collections
+### Coleções Lazy
 
-_Lazy collections were implemented by [Joseph Silber](https://github.com/JosephSilber)_.
+_Coleções Lazy foram implementadas por [Joseph Silber](https://github.com/JosephSilber)_.
 
-Many developers already enjoy Laravel's powerful [Collection methods](https://laravel.com/docs/collections). To supplement the already powerful `Collection` class, Laravel 6 introduces a `LazyCollection`, which leverages PHP's [generators](https://www.php.net/manual/en/language.generators.overview.php) to allow you to work with very large datasets while keeping memory usage low.
+Muitos desenvolvedores já aproveitam todo o pode dos  [métodos Collection](https://laravel.com/docs/collections) do Laravel. Para complementar a já poderosa classe `Collection`, o Laravel 6 apresenta um `LazyCollection`, que é To supplement the already powerful  class, Laravel 6 introduces a `LazyCollection`, que se aproveita dos [generators](https://www.php.net/manual/en/language.generators.overview.php) do PHP, para permitir que você trabalhe com conjuntos de dados muito grandes, enquanto mantém o uso de memória baixo.
 
-For example, imagine your application needs to process a multi-gigabyte log file while taking advantage of Laravel's collection methods to parse the logs. Instead of reading the entire file into memory at once, lazy collections may be used to keep only a small part of the file in memory at a given time:
+Por exemplo, imagine que sua aplicação necessita processar um arquivo de log com vários gigabytes, enquanto tira vantagem dos métodos Collection do Laravel para analisar os logs. Ao invés de ler o arquivo inteiro dentro da memória de uma única vez, as Collections Lazy podem ser usadas para manter somente uma pequena parte do arquivo na memória por vez:
 
     use App\LogEntry;
     use Illuminate\Support\LazyCollection;
@@ -169,16 +170,16 @@ For example, imagine your application needs to process a multi-gigabyte log file
         return LogEntry::fromLines($lines);
     })
     ->each(function (LogEntry $logEntry) {
-        // Process the log entry...
+        // Processa a entrada do log...
     });
 
-Or, imagine you need to iterate through 10,000 Eloquent models. When using traditional Laravel collections, all 10,000 Eloquent models must be loaded into memory at the same time:
+Ou então, imagine que você precise iterar sobre 10.000 modelos do Eloquent. Quando usa as tradicionais Collections do Laravel, todos os 10.000 modelos do Eloquent precisam ser carregados para a memória ao mesmo tempo:
 
     $users = App\User::all()->filter(function ($user) {
         return $user->id > 500;
     });
 
-However, beginning in Laravel 6, the query builder's `cursor` method has been updated to return a `LazyCollection` instance. This allows you to still only run a single query against the database but also only keep one Eloquent model loaded in memory at a time. In this example, the `filter` callback is not executed until we actually iterate over each user individually, allowing for a drastic reduction in memory usage:
+No entanto, começando no Laravel 6, o método de construtor de queries `cursor` foi atualizado para retornar uma instância de `LazyCollection`. Isto permite a você ainda rodar uma única query no banco de dados, mas também somente manter um modelo do Eloquent carregado na memória por vez. Neste exemplo, o callback `filter` não é executado até nós iterarmos sobre cada usuário invidualmente, permitindo uma drástica redução do uso de memória:
 
     $users = App\User::cursor()->filter(function ($user) {
         return $user->id > 500;
@@ -188,34 +189,34 @@ However, beginning in Laravel 6, the query builder's `cursor` method has been up
         echo $user->id;
     }
 
-### Eloquent Subquery Enhancements
+### Aprimoramentos de Subquery no Eloquent
 
-_Eloquent subquery enhancements were implemented by [Jonathan Reinink](https://github.com/reinink)_.
+_Aprimoramentos de subquery no Eloquent foram implementadas por [Jonathan Reinink](https://github.com/reinink)_.
 
-Laravel 6 introduces several new enhancements and improvements to database subquery support. For example, let's imagine that we have a table of flight `destinations` and a table of `flights` to destinations. The `flights` table contains an `arrived_at` column which indicates when the flight arrived at the destination.
+O Laravel 6 introduziu muitas novas melhorias e aprimoramentos para suporte à subquery no banco de dados. Por exemplo, vamos imaginar que nós temos uma tabela de voos chamadas `destinos` e uma tabela de `voos` para destinos. A tabela `voos` contém uma coluna `chegada_em`, que indica quando o voo chegou no destino.
 
-Using the new subquery select functionality in Laravel 6, we can select all of the `destinations` and the name of the flight that most recently arrived at that destination using a single query:
+Usando a nova funcionalidade de select do subquery dentro do Laravel 6, nós podemos selecionar todos os `destinos` e o nome do voo que mais recentemente chegaram ao destino usando uma única consulta:
 
-    return Destination::addSelect(['last_flight' => Flight::select('name')
-        ->whereColumn('destination_id', 'destinations.id')
-        ->orderBy('arrived_at', 'desc')
+    return Destination::addSelect(['ultimo_voo' => Flight::select('nome')
+        ->whereColumn('id_destino', 'destinos.id')
+        ->orderBy('chegada_em', 'desc')
         ->limit(1)
     ])->get();
 
-In addition, we can use new subquery features added to the query builder's `orderBy` function to sort all destinations based on when the last flight arrived at that destination. Again, this may be done while executing a single query against the database:
+Adicionalmente, nós podemos usar os novos recursos de subquery em conjunto com a função `orderBy` do construtor de queries para ordenar todos os destinos baseado em quando o último voo chegou em seu destino. De novo, isto pode ser feito executando uma única query para o banco de dados:
 
     return Destination::orderByDesc(
-        Flight::select('arrived_at')
-            ->whereColumn('destination_id', 'destinations.id')
-            ->orderBy('arrived_at', 'desc')
+        Flight::select('chegada_em')
+            ->whereColumn('id_destino', 'destinos.id')
+            ->orderBy('chegada_em', 'desc')
             ->limit(1)
     )->get();
 
 ### Laravel UI
 
-The frontend scaffolding typically provided with previous releases of Laravel has been extracted into a `laravel/ui` Composer package. This allows the first-party UI scaffolding to be developed and versioned separately from the primary framework. As a result of this change, no Bootstrap or Vue code is present in default framework scaffolding, and the `make:auth` command has been extracted from the framework as well.
+O códigos semi-prontos de frontend, tipicamente fornecidos em versões anteriores do Laravel, foram extraídos para o pacote `laravel/ui` do Composer. Isto permite que o código primário da interface seja desenvolvido e versionado separadamente do framework primário. Como resultado desta mudança, nenhum código Bootstrap ou Vue está presente no código padrão do framework e o comando `make:auth` também foi extraído do framework.
 
-In order to restore the traditional Vue / Bootstrap scaffolding present in previous releases of Laravel, you may install the `laravel/ui` package and use the `ui` Artisan command to install the frontend scaffolding:
+Para restaurar o tradicional código semi-pronto do Vue/Bootstrap como nas versões anteriores do Laravel, basta instalar o pacote `laravel/ui` e usar o comando `ui` do Artisan para instalar o código do frontend:
 
     composer require laravel/ui --dev
 
