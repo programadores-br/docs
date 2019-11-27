@@ -1,37 +1,37 @@
-# Configuration
+# Configuração
 
-- [Introduction](#introduction)
-- [Environment Configuration](#environment-configuration)
-    - [Environment Variable Types](#environment-variable-types)
-    - [Retrieving Environment Configuration](#retrieving-environment-configuration)
-    - [Determining The Current Environment](#determining-the-current-environment)
-    - [Hiding Environment Variables From Debug Pages](#hiding-environment-variables-from-debug)
-- [Accessing Configuration Values](#accessing-configuration-values)
-- [Configuration Caching](#configuration-caching)
-- [Maintenance Mode](#maintenance-mode)
+- [Introdução](#introduction)
+- [Configuração do Ambiente](#environment-configuration)
+    - [Tipos de Variáveis de Ambiente](#environment-variable-types)
+    - [Recuperando a Configuração do Ambiente](#retrieving-environment-configuration)
+    - [Definindo o Ambiente Atual](#determining-the-current-environment)
+    - [Ocultando Variáveis de ambiente das paginas de Debug](#hiding-environment-variables-from-debug)
+- [Acessando valores de Configurações](#accessing-configuration-values)
+- [Cache de Configurações](#configuration-caching)
+- [Modo de Manutenção](#maintenance-mode)
 
 <a name="introduction"></a>
-## Introduction
+## Introdução
 
-All of the configuration files for the Laravel framework are stored in the `config` directory. Each option is documented, so feel free to look through the files and get familiar with the options available to you.
+Todos os arquivos de configuração do Laravel estão armazenados no diretório `config`. Cada opção esta documentada, então sinta-se a vontade para olhar os arquivos e farmiliarizar-se com as opções disponíveis para voçê.
 
 <a name="environment-configuration"></a>
-## Environment Configuration
+## Configuração do Ambiente
 
-It is often helpful to have different configuration values based on the environment where the application is running. For example, you may wish to use a different cache driver locally than you do on your production server.
+Muitas vezes, é util ter valores diferentes de configuração de acordo com o ambiente onde a aplicação esta rodando. Por exemplo, você pode querer usar um driver de cache local diferente  daquele que esta no servidor de produção.
 
-To make this a cinch, Laravel utilizes the [DotEnv](https://github.com/vlucas/phpdotenv) PHP library by Vance Lucas. In a fresh Laravel installation, the root directory of your application will contain a `.env.example` file. If you install Laravel via Composer, this file will automatically be renamed to `.env`. Otherwise, you should rename the file manually.
+Para facilitar, Laravel utiliza a bliblioteca PHP [DotEnv](https://github.com/vlucas/phpdotenv) criada por Vance Lucas. Em uma instalação Laravel limpa, o diretório principal da aplicação vai conter um arquivo `.env.example`. Se você instalou o laravel via Composer, Este arquivo será automaticamente renomeado para `.env`. Caso contrário, você deve renomea-lo manualmente.
 
-Your `.env` file should not be committed to your application's source control, since each developer / server using your application could require a different environment configuration. Furthermore, this would be a security risk in the event an intruder gains access to your source control repository, since any sensitive credentials would get exposed.
+Seu arquivo `.env` não deve ser adicionado ao controle de versão de sua aplicação, uma vez que cada desenvolvedor / servidor requer uma configuração diferente do ambiente. Alem disso seria um risco de segurança caso um invasor obtenha acesso ao controle de versão do repositório, uma vez que quaisquer credênciais sensíveis seriam expostas.
 
-If you are developing with a team, you may wish to continue including a `.env.example` file with your application. By putting placeholder values in the example configuration file, other developers on your team can clearly see which environment variables are needed to run your application. You may also create a `.env.testing` file. This file will override the `.env` file when running PHPUnit tests or executing Artisan commands with the `--env=testing` option.
+Se você estiver desenvolvendo com uma equipe, você pode continuar a incluir um arquivo `.env.example` junto com sua aplicação. Ao colocar valores de espáço reservado no arquivo de configuração, outros desenvolvedores da sua equipe podem ver claramente quais variáveis serão necessáriaspara a executar a aplicação. Voxê também pode criar um arquivo `.env.testing`. Este arquivo vai sobrescrever o arquivo `.env` ao executar testes PHPUnit ou executando comandos Artisan com a opção `--env=testing`.
 
-> {tip} Any variable in your `.env` file can be overridden by external environment variables such as server-level or system-level environment variables.
+> {tip} Qualquer variável do arquivo `.env` pode ser substituida por variáveis de ambiente externas, tais como variáveis de ambiente a nivel de servidor ou a nível de sistema.
 
 <a name="environment-variable-types"></a>
-### Environment Variable Types
+### Tipos de Variáveis de Ambiente
 
-All variables in your `.env` files are parsed as strings, so some reserved values have been created to allow you to return a wider range of types from the `env()` function:
+Todas as variáveis em seu arquivo `.env` são interpretadas como strings, portanto alguns valores reservados foram criados para permitir que você retorne uma variedade maior de tipos da função  `env()`:
 
 `.env` Value  | `env()` Value
 ------------- | -------------
@@ -44,27 +44,27 @@ empty | (string) ''
 null | (null) null
 (null) | (null) null
 
-If you need to define an environment variable with a value that contains spaces, you may do so by enclosing the value in double quotes.
+Se você precisar definir uma variável de ambiente com um valor que contenha espaços, você pode faze-lo colocando o valor entre aspas duplas.
 
-    APP_NAME="My Application"
+    APP_NAME="Minha Aplicação"
 
 <a name="retrieving-environment-configuration"></a>
-### Retrieving Environment Configuration
+### Recuperando a Configuração do Ambiente
 
-All of the variables listed in this file will be loaded into the `$_ENV` PHP super-global when your application receives a request. However, you may use the `env` helper to retrieve values from these variables in your configuration files. In fact, if you review the Laravel configuration files, you will notice several of the options already using this helper:
+Todas as variáveis listadas são armazenadas na variável super-global `$_ENV` do PHP quando sua aplicação recebe uma requisição. No entanto, você pode usar o helper `env` para recuperar valores dessas variáveis em seu arquivo de configuração. De fato, se você revisar os arquivos de configuração do Laravel, você notará que várias opções que utilizam esse helper:
 
     'debug' => env('APP_DEBUG', false),
 
-The second value passed to the `env` function is the "default value". This value will be used if no environment variable exists for the given key.
+O segundo parâmetro passado para a função `env` é o "valor padrão". Este valor será usado se não existir nenhuma variável de ambiente para a chave especificada.
 
 <a name="determining-the-current-environment"></a>
-### Determining The Current Environment
+### Defifindo o ambiente Atual
 
-The current application environment is determined via the `APP_ENV` variable from your `.env` file. You may access this value via the `environment` method on the `App` [facade](/docs/{{version}}/facades):
+O ambiente atual da aplicação é definido pela variável `APP_ENV` do arquivo `.env`. Você pode acessar o valor dessa variável pelo método `environment` da [facade](/docs/{{version}}/facades) `App` :
 
     $environment = App::environment();
 
-You may also pass arguments to the `environment` method to check if the environment matches a given value. The method will return `true` if the environment matches any of the given values:
+Você também pode passar argumentos para o método `environment` para verificar se o ambiente conresponde ao valor passado. O valor vai retornar `true` se o ambiente corresponder a qualquer um dos valores informados:
 
     if (App::environment('local')) {
         // The environment is local
