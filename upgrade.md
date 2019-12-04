@@ -1,70 +1,70 @@
-# Upgrade Guide
+# Guia de atualização
 
-- [Upgrading To 6.0 From 5.8](#upgrade-6.0)
+- [Atualizando do 5.8 para o 6.0](#upgrade-6.0)
 
 <a name="high-impact-changes"></a>
-## High Impact Changes
+## Mudanças de Alto Impacto
 
 <div class="content-list" markdown="1">
-- [Authorized Resources & `viewAny`](#authorized-resources)
-- [String & Array Helpers](#helpers)
+- [Recursos de Autorização & `viewAny`](#authorized-resources)
+- [Helpers de Strings & Arrays](#helpers)
 </div>
 
 <a name="medium-impact-changes"></a>
-## Medium Impact Changes
+## Mudanças de Médio Impacto
 
 <div class="content-list" markdown="1">
-- [Carbon 1.x No Longer Supported](#carbon-support)
-- [Redis Default Client](#redis-default-client)
-- [Database `Capsule::table` Method](#capsule-table)
-- [Eloquent Arrayable & `toArray`](#eloquent-to-array)
-- [Eloquent `BelongsTo::update` Method](#belongs-to-update)
-- [Eloquent Primary Key Types](#eloquent-primary-key-type)
-- [Localization `Lang::trans` and `Lang::transChoice` Methods](#trans-and-trans-choice)
-- [Localization `Lang::getFromJson` Method](#get-from-json)
-- [Queue Retry Limit](#queue-retry-limit)
-- [Resend Email Verification Route](#email-verification-route)
-- [Email Verification Route Change](#email-verification-route-change)
-- [The `Input` Facade](#the-input-facade)
+- [Perda de Suporte ao Carbon 1.x](#carbon-support)
+- [Cliente padrão do Redis](#redis-default-client)
+- [Método `Capsule::table` do Database](#capsule-table)
+- [Arrayable & `toArray` Eloquent](#eloquent-to-array)
+- [Método `BelongsTo::update` do Eloquent](#belongs-to-update)
+- [Tipos de Chave Primária do Eloquent](#eloquent-primary-key-type)
+- [Métodos `Lang::trans` e `Lang::transChoice` de Localização](#trans-and-trans-choice)
+- [Método `Lang::getFromJson` de Localização](#get-from-json)
+- [Limite de retentativas de filas](#queue-retry-limit)
+- [Rota para reenvio de e-mail de verificação](#email-verification-route)
+- [Alteração da rota de verificação de e-maiç](#email-verification-route-change)
+- [A Facade `Input`](#the-input-facade)
 </div>
 
 <a name="upgrade-6.0"></a>
-## Upgrading To 6.0 From 5.8
+## Atualizando do 5.8 para o 6.0
 
-#### Estimated Upgrade Time: One Hour
+#### Tempo estimado para atualização: uma hora
 
-> {note} We attempt to document every possible breaking change. Since some of these breaking changes are in obscure parts of the framework only a portion of these changes may actually affect your application.
+> {note} Nós tentamos documentar toda mudança que possa quebrar a sua aplicação. Considerando que algumas destas mudanças ocorreram em partes profundas do framework, somente uma parte destas mudanças podem efetivamente afetar sua aplicação.
 
-### PHP 7.2 Required
+### PHP 7.2 é requerido
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-PHP 7.1 will no longer be actively maintained as of December 2019. Therefore, Laravel 6.0 requires PHP 7.2 or greater.
+PHP 7.1 não será mais matido ativamente a partir de Dezembro/2019. No entanto, o Laravel 6.0 requer PHP 7.2 ou mais recente.
 
 <a name="updating-dependencies"></a>
-### Updating Dependencies
+### Atualizando Dependências
 
-Update your `laravel/framework` dependency to `^6.0` in your `composer.json` file.
+Atualize sua dependência `laravel/framework` para `^6.0` no seu arquivo `composer.json`.
 
-Next, examine any 3rd party packages consumed by your application and verify you are using the proper version for Laravel 6 support.
+Em seguida, analise quaisquer pacotes de terceiros consumidos por sua aplicação e verifique se você está usando a versão adequada que suporte o Laravel 6.
 
-### Authorization
+### Autorização
 
 <a name="authorized-resources"></a>
-#### Authorized Resources & `viewAny`
+#### Recursos de Autorização & `viewAny`
 
-**Likelihood Of Impact: High**
+**Probabilidade de impacto: Alto**
 
-Authorization policies attached to controllers using the `authorizeResource` method should now define a `viewAny` method, which will be called when a user accesses the controller's `index` method. Otherwise, calls to the `index` method of the controller will be rejected as unauthorized.
+Políticas de autorização acopladas ao controller usando o método `authorizeResource` devem definir a partir de agora um método `viewAny`, que será chamado quando um usuário acessa método `index` do controller. Do contrário, chamadas ao método `index` a partir do controller serão rejeitadas como não autorizadas.
 
-#### Authorization Responses
+#### Respostas de Autorização
 
-**Likelihood Of Impact: Low**
+**Probabilidade de impacto: Baixo**
 
-The constructor signature of the `Illuminate\Auth\Access\Response` class has changed. You should update your code accordingly. If you are not constructing authorization responses manually and are only using the `allow` and `deny` instance methods within your policies, no change is required:
+A assinatura do construtor da classe `Illuminate\Auth\Access\Response` mudou. Você deve atualizar seu código You should update your code adequadamente. Se você não está construindo respostas de autorização manualmente e somente usa instâncias dos métodos `allow` e `deny` dentro de suas políticas, nenhuma mudança é necessária:
 
     /**
-     * Create a new response.
+     * Cria uma nova resposta.
      *
      * @param  bool  $allowed
      * @param  string  $message
@@ -73,66 +73,65 @@ The constructor signature of the `Illuminate\Auth\Access\Response` class has cha
      */
     public function __construct($allowed, $message = '', $code = null)
 
-#### Returning "Deny" Responses
+#### Respostas retornando "Deny" (Negado)
 
-**Likelihood Of Impact: Low**
+**Probabilidade de impacto: Baixo**
 
-In previous releases of Laravel, you did not need to return the value of the `deny` method from your policy methods since an exception was thrown immediately. However, in accordance with the Laravel documentation, you must now return the value of the `deny` method from your policies:
+Em versões anteriores do Laravel, você não precisava retornar o valor do método `deny` a partir dos métodos de políticas, desde que uma exceção fosse lançada imediatamente. Porém, de acordo com a documentação do Laravel, você precisa agora retornar o valor do método `deny` a partir de suas políticas:
 
     public function update(User $user, Post $post)
     {
         if (! $user->role->isEditor()) {
-            return $this->deny("You must be an editor to edit this post.")
+            return $this->deny("Você precisa ser um editor para editar este post.")
         }
 
         return $user->id === $post->user_id;
     }
 
 <a name="auth-access-gate-contract"></a>
-#### The `Illuminate\Contracts\Auth\Access\Gate` Contract
+#### O contrato `Illuminate\Contracts\Auth\Access\Gate`
 
-**Likelihood Of Impact: Low**
+**Probabilidade de impacto: Baixo**
 
-The `Illuminate\Contracts\Auth\Access\Gate` contract has received a new `inspect` method. If you are implementing this interface manually, you should add this method to your implementation.
+O contrato `Illuminate\Contracts\Auth\Access\Gate` recebeu um novo método `inspect`. Se você está implementando esta interface manualmente, você deve adicionar este método à sua implementação.
     
 ### Carbon
 
 <a name="carbon-support"></a>
-#### Carbon 1.x No Longer Supported
+#### Perda de Suporte ao Carbon 1.x
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-Carbon 1.x [is no longer supported](https://github.com/laravel/framework/pull/28683) since it is nearing its maintenance end of life. Please upgrade your application to Carbon 2.0.
+Carbon 1.x [não é mais suportado](https://github.com/laravel/framework/pull/28683), considerando que estamos próximos do fim do ciclo de manutenção dele. Por favor, atualize sua aplicação para o Carbon 2.0.
 
-### Configuration
+### Configuração
 
-#### The `AWS_REGION` Environment Variable
+#### A variável de ambiente `AWS_REGION`
 
-**Likelihood Of Impact: Optional**
+**Probabilidade de impacto: Opcional**
 
-If you plan to utilize [Laravel Vapor](https://vapor.laravel.com), you should update all occurrences of `AWS_REGION` within your `config` directory to `AWS_DEFAULT_REGION`. In addition, you should update this environment variable's name in your `.env` file.
+Se vcoê planeja usa o[Laravel Vapor](https://vapor.laravel.com), você deve atualizar todas as ocorrências de `AWS_REGION` dentro do diretório `config` para `AWS_DEFAULT_REGION`. Adicionalmente, você deve atualizar o nome deste variável de ambiente update no seu arquivo `.env`.
 
 <a name="redis-default-client"></a>
-#### Redis Default Client
+#### Cliente padrão do Redis
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-The default Redis client has changed from `predis` to `phpredis`. In order to keep using `predis`, ensure the `redis.client` configuration option is set to `predis` in your `config/database.php` configuration file.
+O cliente padrão do Redis foi alterado, de `predis` para `phpredis`. Para continuar usando o `predis`, tenha certeza que a opção `redis.client` está ajustada para `predis` no seu arquivo de configuração `config/database.php`.
 
-### Database
+### Banco de dados
 
 <a name="capsule-table"></a>
-#### The Capsule `table` Method
+#### O método encapsulado `table`
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-> {note} This change only applies to non-Laravel applications that are using `illuminate/database` as a dependency.
+> {note} Esta mudança se aplica apenas a aplicações não-Laravel que estão usando `illuminate/database` como dependência.
 
-The signature of the `Illuminate\Database\Capsule\Manager` class' `table` method has 
-updated to accept a table alias as its second argument. If you are using `illuminate/database` outside of a Laravel application, you should update any calls to this method accordingly:
+A assinatura do método `table` da classe `Illuminate\Database\Capsule\Manager` foi atualizado para aceitar um apelido da tabela como seu segundo argumento. Se você está usando `illuminate/database` fora de uma aplicação Laravel, você deve atualizar adequadamente quaisquer chamadas ao método:
 
     /**
-     * Get a fluent query builder instance.
+     * Obtem uma instância fluida do construtor de queries.
      *
      * @param  \Closure|\Illuminate\Database\Query\Builder|string  $table
      * @param  string|null  $as
@@ -141,11 +140,11 @@ updated to accept a table alias as its second argument. If you are using `illumi
      */
     public static function table($table, $as = null, $connection = null)
 
-#### The `cursor` Method
+#### O método `cursor`
 
-**Likelihood Of Impact: Low**
+**Probabilidade de impacto: Baixo**
 
-The `cursor` method now returns an instance of `Illuminate\Support\LazyCollection` instead of a `Generator` The `LazyCollection` may be iterated just like a generator:
+O método `cursor` agora retorna uma instância de `Illuminate\Support\LazyCollection` ao invés de um `Generator`. O `LazyCollection` pode ser iterado assim como um gerador:
 
     $users = App\User::cursor();
 
@@ -157,36 +156,36 @@ The `cursor` method now returns an instance of `Illuminate\Support\LazyCollectio
 ### Eloquent
 
 <a name="belongs-to-update"></a>
-#### The `BelongsTo::update` Method
+#### O método `BelongsTo::update`
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-For consistency, the `update` method of the `BelongsTo` relationship now functions as an ad-hoc update query, meaning it does not provide mass assignment protection or fire Eloquent events. This makes the relationship consistent with the `update` methods on all other types of relationships.
+Por consistência, o método `update` do relacionamento `BelongsTo` agora age como uma query de atualização ad-hoc, o que significa que ele não fornece proteção contra atribuição massiva nem que dispara eventos do Eloquent. Isto torna o relacionamento dos métodos `update` consistente com todos os outros tipos de relacionamentos.
 
-If you would like to update a model attached via a `BelongsTo` relationship and receive mass assignment update protection and events, you should call the `update` method on the model itself:
+Se você gostaria de atualizar um modelo acoplado através de um relacionamento `BelongsTo` e receber uma proteção de atribuição massiva de atualização e eventos, você deve atualizar a chamada ao método `update` dentro do próprio modelo:
 
-    // Ad-hoc query... no mass assignment protection or events...
+    // Query ad-hoc... Sem proteção para atribução massiva ou eventos...
     $post->user()->update(['foo' => 'bar']);
 
-    // Model update... provides mass assignment protection and events...
+    // Atualização do modelo... fornece proteção de atribução massiva e eventos...
     $post->user->update(['foo' => 'bar']);
 
 <a name="eloquent-to-array"></a>
 #### Arrayable & `toArray`
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-The Eloquent model's `toArray` method will now cast any attributes that implement `Illuminate\Contracts\Support\Arrayable` to an array.
+Os métodos `toArray` dos modelos do Eloquent vão transformar em um array qualquer atributo que implemente `Illuminate\Contracts\Support\Arrayable`.
 
 <a name="eloquent-primary-key-type"></a>
-#### Declaration Of Primary Key Type
+#### Declaração de tipos de Chave Primária
 
-**Likelihood Of Impact: Medium**
+**Probabilidade de impacto: Médio**
 
-Laravel 6.0 has received [performance optimizations](https://github.com/laravel/framework/pull/28153) for integer key types. If you are using a string as your model's primary key, you should declare the key type using the `$keyType` property on your model:
+Laravel 6.0 recebeu [otimizaçãoes de performance](https://github.com/laravel/framework/pull/28153) para para chaves do tipo inteiro. Se você está usando uma string como chave primária do seu modelo, você deve decalrar o tipo da chave usando a propriedade `$keyType` no seu modelo:
 
     /**
-     * The "type" of the primary key ID.
+     * O "tipo" do ID da chave primária.
      *
      * @var string
      */
